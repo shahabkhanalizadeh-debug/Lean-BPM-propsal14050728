@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پروپوزال و شبیه‌ساز معماری فرآیندها | شرکت مهندسی کسرا</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.fontcdn.ir/Font/Persian/IRANSans/IRANSans.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['IRANSans', 'IRANSansX', 'Vazirmatn', 'Tahoma', 'sans-serif'],
+                    },
+                    colors: {
+                        mckinsey: {
+                            navy: '#051C2C',
+                            deep: '#0A2540',
+                            blue: '#0066CC',
+                            teal: '#0D9488',
+                            light: '#F4F6F9'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'IRANSans', 'Vazirmatn', sans-serif;
+            background-color: #F4F6F9;
+            color: #1E293B;
+            font-size: 14px;
+            line-height: 1.9;
+            -webkit-font-smoothing: antialiased;
+        }
+        .no-wrap { white-space: nowrap; }
+        
+        .catalog-list li {
+            position: relative;
+            padding-right: 1.35rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.92rem;
+            font-weight: 500;
+            color: #1E293B;
+            line-height: 1.85;
+            text-align: right;
+        }
+        .catalog-list li::before {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 0.65rem;
+            width: 7px;
+            height: 7px;
+            background-color: #0D9488;
+            border-radius: 2px;
+        }
+
+        .skill-list li {
+            position: relative;
+            padding-right: 1.5rem;
+            margin-bottom: 0.85rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #051C2C;
+            line-height: 1.8;
+        }
+        .skill-list li::before {
+            content: "✦";
+            position: absolute;
+            right: 0;
+            top: 0.05rem;
+            color: #0D9488;
+            font-size: 1rem;
+        }
+
+        .mc-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-top: 3px solid #051C2C;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        .mc-card:hover {
+            box-shadow: 0 12px 28px -6px rgba(5, 28, 44, 0.08);
+        }
+        .mc-card-teal { border-top: 3px solid #0D9488; }
+        .mc-card-blue { border-top: 3px solid #0066CC; }
+
+        .step-box {
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            border-radius: 10px;
+            padding: 12px 16px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #0F172A;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            position: relative;
+        }
+        .step-box.bottleneck { border-color: #EF4444; background-color: #FEF2F2; }
+        .step-box.novalue { border-color: #F59E0B; background-color: #FFFBEB; }
+        .step-box.optimized { border-color: #0D9488; background-color: #F0FDFA; }
+
+        input[type=range] { height: 6px; border-radius: 6px; cursor: pointer; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #fff !important; font-size: 12px; }
+            #page-proposal { display: block !important; }
+            #page-simulator { display: none !important; }
+            #price-analysis-modal { display: none !important; }
+        }
+    </style>
+
+    <script>
+        function toFa(num) {
+            return Math.round(num).toLocaleString('fa-IR');
+        }
+
+        function formatDecimalFa(num) {
+            return num.toLocaleString('fa-IR', { minimumFractionDigits: 0, maximumFractionDigits: 1 });
+        }
+
+        window.openSimulatorPage = function() {
+            var propPage = document.getElementById('page-proposal');
+            var simPage = document.getElementById('page-simulator');
+            if (propPage && simPage) {
+                propPage.style.display = 'none';
+                simPage.style.display = 'flex';
+                window.scrollTo(0, 0);
+            }
+        };
+
+        window.closeSimulatorPage = function() {
+            var propPage = document.getElementById('page-proposal');
+            var simPage = document.getElementById('page-simulator');
+            if (propPage && simPage) {
+                simPage.style.display = 'none';
+                propPage.style.display = 'flex';
+                window.scrollTo(0, 0);
+            }
+        };
+
+        window.openPriceModal = function() {
+            var modal = document.getElementById('price-analysis-modal');
+            if (modal) modal.style.display = 'flex';
+        };
+
+        window.closePriceModal = function() {
+            var modal = document.getElementById('price-analysis-modal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        window.recalcCalculator = function() {
+            var countEl = document.getElementById('processCountRange');
+            var countValEl = document.getElementById('processCountVal');
+            var totalCostEl = document.getElementById('totalCostVal');
+            var durationValEl = document.getElementById('durationVal');
+            var calcCountEl = document.getElementById('calc-count-summary');
+            
+            if (!countEl) return;
+
+            var count = parseInt(countEl.value, 10);
+            var baseRate = 24000000; 
+            var totalCost = count * baseRate;
+
+            var totalDays = count * 4.5;
+            var rawMonths = totalDays / 30;
+            var roundedMonths = Math.ceil(rawMonths * 2) / 2;
+            if (roundedMonths < 0.5) roundedMonths = 0.5;
+
+            var monthText = formatDecimalFa(roundedMonths) + ' ماه';
+
+            countValEl.innerText = toFa(count) + ' فرآیند';
+            totalCostEl.innerText = toFa(totalCost);
+            durationValEl.innerText = monthText;
+            if (calcCountEl) calcCountEl.innerText = toFa(count) + ' فرآیند';
+        };
+
+        function switchDomain(domain) {
+            var btnHr = document.getElementById('btn-domain-hr');
+            var btnFin = document.getElementById('btn-domain-fin');
+            var btnSup = document.getElementById('btn-domain-sup');
+
+            [btnHr, btnFin, btnSup].forEach(b => {
+                if(b) {
+                    b.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-white transition cursor-pointer";
+                }
+            });
+
+            var titleEl = document.getElementById('domain-title');
+            var descEl = document.getElementById('domain-desc');
+            
+            var asisTotal = document.getElementById('sim-asis-total');
+            var asisMuda = document.getElementById('sim-asis-muda');
+            var tobeTotal = document.getElementById('sim-tobe-total');
+            var savedTime = document.getElementById('sim-saved-time');
+            var efficiencyGain = document.getElementById('sim-efficiency-gain');
+            var leanSummary = document.getElementById('sim-lean-summary');
+
+            var asisBox1Title = document.getElementById('asis-box-1-title');
+            var asisBox1Desc = document.getElementById('asis-box-1-desc');
+            var asisBox2Title = document.getElementById('asis-box-2-title');
+            var asisBox2Desc = document.getElementById('asis-box-2-desc');
+            var asisBox3Title = document.getElementById('asis-box-3-title');
+            var asisBox3Desc = document.getElementById('asis-box-3-desc');
+
+            var tobeBox1Title = document.getElementById('tobe-box-1-title');
+            var tobeBox1Desc = document.getElementById('tobe-box-1-desc');
+            var tobeBox2Title = document.getElementById('tobe-box-2-title');
+            var tobeBox2Desc = document.getElementById('tobe-box-2-desc');
+            var tobeBox3Title = document.getElementById('tobe-box-3-title');
+            var tobeBox3Desc = document.getElementById('tobe-box-3-desc');
+
+            var asisNode1 = document.getElementById('asis-node-1-text');
+            var asisNode2a = document.getElementById('asis-node-2a-text');
+            var asisNode2b = document.getElementById('asis-node-2b-text');
+            
+            var tobeNode1 = document.getElementById('tobe-node-1-text');
+            var tobeNode2a = document.getElementById('tobe-node-2a-text');
+            var tobeNode2b = document.getElementById('tobe-node-2b-text');
+
+            if (domain === 'hr') {
+                if(btnHr) btnHr.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-teal-500 text-slate-950 transition cursor-pointer";
+                
+                titleEl.innerText = 'حوزه منابع انسانی: فرآیند جذب، ارزیابی و جبران خدمات پرسنل';
+                descEl.innerText = 'شناخت و بهبود فرآیندهای مرتبط با پرونده‌های پرسنلی، احکام و ارزشیابی عملکرد با رویکرد ناب و حذف بروکراسی‌های موازی.';
+
+                asisTotal.innerText = '۴۰ ساعت';
+                asisMuda.innerText = '۲۲ ساعت اتلاف انتظار';
+                tobeTotal.innerText = '۱۸ ساعت';
+                savedTime.innerText = '۲۲ ساعت (۵۵٪ کاهش)';
+                efficiencyGain.innerText = 'بهبود ۵۵ درصدی بهره‌وری';
+                leanSummary.innerText = 'با حذف بروکراسی‌های تایید کاغذی و موازی‌سازی دیجیتال، زمان معطلی پرونده‌ها به صفر رسید.';
+
+                asisBox1Title.innerText = '۱. ثبت دستی اولیه و تشکیل پوشه‌های فیزیکی پرسنلی';
+                asisBox1Desc.innerText = '(زمان انتظار و معطلی: ۲ روز کاری)';
+                asisBox2Title.innerText = '۲. بازبینی و تطبیق دستی فرم‌ها با آیین‌نامه‌ها';
+                asisBox2Desc.innerText = '⚠ فعالیت فاقد ارزش افزوده (No Value)';
+                asisBox3Title.innerText = '۳. اخذ امضاهای سنتی متوالی از چند مدیر';
+                asisBox3Desc.innerText = '🔴 گلوگاه اصلی (Bottleneck) و تلفات زمان (Muda)';
+
+                tobeBox1Title.innerText = '۱. ثبت یکپارچه درخواست در پورتال پرسنلی';
+                tobeBox1Desc.innerText = '(بدون معطلی فیزیکی و کاغذبازی)';
+                tobeBox2Title.innerText = '۲. اعتبارسنجی خودکار سیستمی با آیین‌نامه';
+                tobeBox2Desc.innerText = '✓ حذف کامل کارهای دستی و خطای انسانی';
+                tobeBox3Title.innerText = '۳. گردش کار هوشمند و تایید متمرکز آنی';
+                tobeBox3Desc.innerText = '✓ کاهش چشمگیر زمان کل چرخه خدمت';
+
+                asisNode1.textContent = 'بررسی اولیه مدارک';
+                asisNode2a.textContent = 'تایید مدیر واحد';
+                asisNode2b.textContent = 'عودت جهت نقص';
+                tobeNode1.textContent = 'اعتبارسنجی سیستمی';
+                tobeNode2a.textContent = 'تایید متمرکز آنی';
+                tobeNode2b.textContent = 'ثبت خودکار حکم';
+
+            } else if (domain === 'finance') {
+                if(btnFin) btnFin.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-teal-500 text-slate-950 transition cursor-pointer";
+
+                titleEl.innerText = 'حوزه اداری مالی: فرآیند پرداخت مزایا، تنخواه‌گردان و صورتحساب‌ها';
+                descEl.innerText = 'بهینه‌سازی جریان پرداخت‌های رفاهی و مالی، خودکارسازی کنترل‌های نرم‌افزاری و رفع گلوگاه‌های امضا و تسویه حساب.';
+
+                asisTotal.innerText = '۵۰ ساعت';
+                asisMuda.innerText = '۲۸ ساعت اتلاف انتظار';
+                tobeTotal.innerText = '۲۵ ساعت';
+                savedTime.innerText = '۲۵ ساعت (۵۰٪ کاهش)';
+                efficiencyGain.innerText = 'بهبود ۵۰ درصدی بهره‌وری';
+                leanSummary.innerText = 'با حذف ساخت فایل‌های اکسل کنترلی موازی و بازبینی‌های مکرر دستی، چرخه مالی تسریع شد.';
+
+                asisBox1Title.innerText = '۱. ثبت فایل‌های اکسل کنترلی موازی توسط واحدها';
+                asisBox1Desc.innerText = '(زمان انتظار و معطلی: ۳ روز کاری)';
+                asisBox2Title.innerText = '۲. بازبینی دستی اسناد و مغایرت‌گیری هزینه‌ها';
+                asisBox2Desc.innerText = '⚠ فعالیت فاقد ارزش افزوده (No Value)';
+                asisBox3Title.innerText = '۳. اخذ امضای فیزیکی اسناد مالی از مدیران';
+                asisBox3Desc.innerText = '🔴 گلوگاه اصلی (Bottleneck) و تلفات (Muda)';
+
+                tobeBox1Title.innerText = '۱. استخراج سیستمی داده‌های مالی و هزینه‌ای';
+                tobeBox1Desc.innerText = '(یکپارچه‌سازی کامل داده‌ها)';
+                tobeBox2Title.innerText = '۲. انطباق‌سنجی خودکار سقف بودجه و اسناد';
+                tobeBox2Desc.innerText = '✓ کنترل سیستمی لحظه‌ای بدون معطلی';
+                tobeBox3Title.innerText = '۳. تایید و پرداخت متمرکز آنی تنخواه';
+                tobeBox3Desc.innerText = '✓ کاهش شدید زمان انتظار تسویه حساب';
+
+                asisNode1.textContent = 'بازبینی اسناد مالی';
+                asisNode2a.textContent = 'تایید اعتبار مالی';
+                asisNode2b.textContent = 'مغایرت و عودت سند';
+                tobeNode1.textContent = 'انطباق‌سنجی خودکار';
+                tobeNode2a.textContent = 'پرداخت متمرکز آنی';
+                tobeNode2b.textContent = 'ثبت سند اتوماتیک';
+
+            } else {
+                if(btnSup) btnSup.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-teal-500 text-slate-950 transition cursor-pointer";
+
+                titleEl.innerText = 'حوزه پشتیبانی: فرآیند درخواست خرید، انبار و خدمات فنی';
+                descEl.innerText = 'سرعت‌بخشی به چرخه درخواست‌های خرید و پشتیبانی تجهیزات با مکانیزه کردن ثبت درخواست‌ها و تاییدیه متمرکز.';
+
+                asisTotal.innerText = '۳۶ ساعت';
+                asisMuda.innerText = '۲۱ ساعت اتلاف انتظار';
+                tobeTotal.innerText = '۱۵ ساعت';
+                savedTime.innerText = '۲۱ ساعت (۵۸٪ کاهش)';
+                efficiencyGain.innerText = 'بهبود ۵۸ درصدی بهره‌وری';
+                leanSummary.innerText = 'با حذف استعلام‌های کاغذی انبار و معطلی مدیران، سرعت تامین تجهیزات پشتیبانی به حداکثر رسید.';
+
+                asisBox1Title.innerText = '۱. ثبت درخواست‌های خرید به صورت کاغذی';
+                asisBox1Desc.innerText = '(زمان انتظار در صف انبار: ۲ روز کاری)';
+                asisBox2Title.innerText = '۲. استعلام دستی موجودی انبار و قیمت‌ها';
+                asisBox2Desc.innerText = '⚠ فعالیت فاقد ارزش افزوده (No Value)';
+                asisBox3Title.innerText = '۳. معطلی جهت تایید مدیر واحد و ترابری';
+                asisBox3Desc.innerText = '🔴 گلوگاه اصلی (Bottleneck) و تلفات (Muda)';
+
+                tobeBox1Title.innerText = '۱. ثبت دیجیتال درخواست خرید و تجهیزات';
+                tobeBox1Desc.innerText = '(دسترسی آنلاین و آنی)';
+                tobeBox2Title.innerText = '۲. بررسی مکانیزه موجودی انبار و رزرو اتوماتیک';
+                tobeBox2Desc.innerText = '✓ لوزی تصمیم‌گیری هوشمند سیستمی';
+                tobeBox3Title.innerText = '۳. ارجاع خودکار خرید به واحد تدارکات';
+                tobeBox3Desc.innerText = '✓ پایان چابک و تامین سریع ملزومات';
+
+                asisNode1.textContent = 'استعلام موجودی انبار';
+                asisNode2a.textContent = 'تایید موجودی انبار';
+                asisNode2b.textContent = 'اعلام کسر انبار';
+                tobeNode1.textContent = 'بررسی مکانیزه انبار';
+                tobeNode2a.textContent = 'رزرو اتوماتیک اقلام';
+                tobeNode2b.textContent = 'سفارش خرید فوری';
+            }
+        }
+    </script>
+</head>
+<body class="selection:bg-mckinsey-navy selection:text-white" onload="recalcCalculator()">
+
+    <!-- ===================================================================== -->
+    <!-- PAGE 1: MAIN EXECUTIVE PROPOSAL CATALOG                               -->
+    <!-- ===================================================================== -->
+    <div id="page-proposal" style="display: flex;" class="min-h-screen flex-col justify-between">
+
+        <!-- Sticky Top Bar -->
+        <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 no-print">
+            <div class="w-full max-w-[1600px] mx-auto px-4 lg:px-8 h-15 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-4 bg-mckinsey-navy rounded-sm shrink-0"></div>
+                    <span class="font-bold text-mckinsey-navy text-xs sm:text-sm no-wrap">پروپوزال معماری فرآیندها | شرکت مهندسی کسرا</span>
+                </div>
+
+                <nav class="hidden xl:flex items-center gap-5 text-xs font-bold text-slate-600">
+                    <a href="#sec-insight" class="hover:text-mckinsey-navy transition no-wrap">۰۱. ارزش‌آفرینی ناب</a>
+                    <a href="#sec-catalog" class="hover:text-mckinsey-navy transition no-wrap">۰۲. گام‌های معماری ناب</a>
+                    <a href="#sec-risk" class="hover:text-mckinsey-navy transition no-wrap">۰۳. قلمرو و الزامات</a>
+                    <a href="#sec-investment" class="hover:text-mckinsey-navy transition no-wrap">۰۴. ماشین‌حساب برآورد</a>
+                    <a href="#sec-authority" class="hover:text-mckinsey-navy transition no-wrap">۰۵. شایستگی مشاور</a>
+                </nav>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="openSimulatorPage()" class="bg-mckinsey-teal hover:bg-teal-700 text-white text-[11px] sm:text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1 shadow-sm no-wrap cursor-pointer">
+                        <span>✨ مشاهده شبیه‌ساز خروجی تحویلی پروژه</span>
+                    </button>
+                    <button type="button" onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] sm:text-xs font-bold px-2.5 py-2 rounded-lg transition no-wrap cursor-pointer">
+                        PDF
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Container -->
+        <main class="w-full max-w-[1600px] mx-auto px-6 lg:px-12 py-7 space-y-9">
+
+            <!-- EXECUTIVE HERO BANNER -->
+            <section class="bg-gradient-to-l from-mckinsey-navy via-mckinsey-deep to-[#083344] text-white rounded-2xl p-7 lg:p-10 shadow-md border border-slate-800">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    
+                    <div class="lg:col-span-8 space-y-4">
+                        <div class="space-y-1.5">
+                            <h2 class="text-xs sm:text-sm font-bold text-teal-300 no-wrap">پروپوزال رسمی مشاوره مدیریت و مهندسی فرآیندها</h2>
+                            <p class="text-sm sm:text-base font-extrabold text-white no-wrap">
+                                کارفرما: شرکت مهندسی کسرا (اصفهان) <span class="text-2xs font-light text-slate-300 mr-2 opacity-80" style="font-weight: 300;">| نماینده کارفرما: جناب آقای دکتر محمدزاده</span>
+                            </p>
+                        </div>
+
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-white leading-normal">
+                            معماری فرآیندها با رویکرد ناب و چابک در حوزه <span class="text-teal-300">منابع انسانی / اداری مالی / پشتیبانی</span>
+                        </h1>
+
+                        <p class="text-slate-200 text-sm sm:text-sm leading-relaxed max-w-3xl text-justify font-normal">
+                            شناخت، عارضه‌یابی، مدل‌سازی استاندارد و بهبود چابک فرآیندهای سازمانی بر اساس نمونه خروجی توافق‌شده؛ حذف بوروکراسی‌ها و اتلاف‌ها (<strong class="text-teal-300">Muda & No Value</strong>) و استقرار نظام مطلوب فرآیندی با تحویل معماری ناب ساختاریافته.
+                        </p>
+
+                        <div class="pt-2 flex flex-wrap items-center gap-3 no-print">
+                            <button type="button" onclick="openSimulatorPage()" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition shadow-md inline-flex items-center gap-2 cursor-pointer">
+                                <span>مشاهده نمونه خروجی تحویلی پروژه (شبیه‌ساز)</span>
+                                <span>←</span>
+                            </button>
+                            <a href="#sec-investment" class="bg-white/10 hover:bg-white/15 text-white text-xs sm:text-sm font-medium px-4 py-2.5 rounded-xl border border-white/15 transition">
+                                ماشین‌حساب برآورد مالی و زمان‌بندی
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-4 grid grid-cols-2 gap-3.5 border-t lg:border-t-0 lg:border-r border-white/15 pt-5 lg:pt-0 lg:pr-7">
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col justify-center">
+                            <span class="text-xs text-slate-400 no-wrap">محل اجرای پروژه</span>
+                            <span class="text-base font-extrabold text-white mt-1 no-wrap">اصفهان</span>
+                        </div>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col justify-center">
+                            <span class="text-xs text-slate-400 no-wrap">اعتبار پروپوزال</span>
+                            <span class="text-base font-extrabold text-amber-300 mt-1 no-wrap">تا ۱۴۰۵/۰۸/۱۵</span>
+                        </div>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col justify-center">
+                            <span class="text-xs text-slate-400 no-wrap">مبنای حق‌الزحمه پایه</span>
+                            <span class="text-base font-extrabold text-teal-400 mt-1 no-wrap">۲۴ میلیون / فرآیند</span>
+                        </div>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col justify-center">
+                            <span class="text-xs text-slate-400 no-wrap">قلمرو فرض (۲۰ فرآیند)</span>
+                            <span class="text-base font-extrabold text-white mt-1 no-wrap">۴۸۰ م تومان (۳ ماهه)</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- SECTION 01: VALUE PROPOSITION -->
+            <section id="sec-insight" class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xs font-bold text-mckinsey-teal bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded">01</span>
+                        <h2 class="text-base sm:text-lg font-bold text-mckinsey-navy no-wrap">رویکرد ناب و مزیت سبک اجرایی (بر اساس نمونه خروجی توافق‌شده)</h2>
+                    </div>
+                    <span class="text-xs text-slate-500 hidden sm:inline-block no-wrap">عبور از پیچیدگی‌های زائد به سوی سادگی و اثربخشی عملیاتی</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="mc-card rounded-xl p-6 flex flex-col justify-between space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-mckinsey-navy text-base no-wrap">۱. کشف چابک و ساده فرآیند (ضد مستندسازی حجیم)</span>
+                            <span class="w-8 h-8 rounded-lg bg-slate-100 text-mckinsey-navy font-bold text-xs flex items-center justify-center">۰۱</span>
+                        </div>
+                        <p class="text-sm text-slate-700 font-medium leading-relaxed text-justify">
+                            بر خلاف مستندات سنگین و غیرعملیاتی، در این رویکرد تمرکز بر شناخت سریع جریان واقعی کار، کشف گلوگاه‌ها و ارائه نقشه‌های روشن و قابل درک برای مدیران و کارکنان شرکت کسرا است.
+                        </p>
+                    </div>
+
+                    <div class="mc-card mc-card-teal rounded-xl p-6 bg-teal-50/20 flex flex-col justify-between space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-mckinsey-navy text-base no-wrap">۲. عارضه‌یابی دقیق اتلاف‌ها و گلوگاه‌ها </span>
+                            <span class="w-8 h-8 rounded-lg bg-teal-100 text-teal-900 font-bold text-xs flex items-center justify-center">۰۲</span>
+                        </div>
+                        <p class="text-sm text-slate-700 font-medium leading-relaxed text-justify">
+                            جانمایی شفاف فعالیت‌های فاقد ارزش افزوده (No Value) و اتلاف (Muda) بر روی جریان فرآیند موجود، جهت حذف موانع معطل‌مانده و تسریع در چرخه انجام کار.
+                        </p>
+                    </div>
+
+                    <div class="mc-card rounded-xl p-6 flex flex-col justify-between space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-mckinsey-navy text-base no-wrap">۳. طراحی وضع مطلوب (To-Be) و سنجش صرفه‌جویی</span>
+                            <span class="w-8 h-8 rounded-lg bg-slate-100 text-mckinsey-navy font-bold text-xs flex items-center justify-center">۰۳</span>
+                        </div>
+                        <p class="text-sm text-slate-700 font-medium leading-relaxed text-justify">
+                            ارائه مدل مطلوب فرآیندها با رویکرد چابک، خودکارسازی و پیش‌بینی میزان کاهش زمان عملیات و انتظار.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 02: SERVICE CATALOG -->
+            <section id="sec-catalog" class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xs font-bold text-mckinsey-teal bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded">02</span>
+                        <h2 class="text-base sm:text-lg font-bold text-mckinsey-navy no-wrap">گام های معماری ناب و خروجی های ملموس</h2>
+                    </div>
+                    <span class="text-xs text-slate-500 hidden sm:inline-block no-wrap">حوزه: منابع انسانی / اداری مالی / پشتیبانی</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="mc-card rounded-xl p-6 flex flex-col justify-between space-y-5">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <span class="text-xs font-bold text-white bg-slate-900 px-3 py-1 rounded-md no-wrap">گام اول</span>
+                                <span class="text-xs text-slate-600 font-bold no-wrap">کشف و شناخت چابک</span>
+                            </div>
+                            <h3 class="font-extrabold text-mckinsey-navy text-base">کشف، شناخت و مدل‌سازی فرآیندها در سطح ۳ </h3>
+                            <ul class="catalog-list pt-1">
+                                <li>برگزاری جلسات خبرگی فشرده با مدیران، خبرگان و کارشناسان کلیدی شرکت کسرا.</li>
+                                <li>کشف و شناخت دقیق جریان واقعی کار در حوزه‌های منابع انسانی، اداری مالی و پشتیبانی.</li>
+                                <li>مدل‌سازی فرآیندهای وضع موجود (<strong class="text-mckinsey-navy">As-Is</strong>) مبتنی بر استاندارد بین‌المللی BPMN 2.0 توصیفی (Descriptive BPMN).</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-100/80 p-4 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                            <span class="font-extrabold text-mckinsey-navy block mb-1">خروجی ملموس گام ۱:</span>
+                            <span class="text-slate-700 font-medium">نقشه فرآیندهای وضع موجود (As-Is). </span>
+                        </div>
+                    </div>
+
+                    <div class="mc-card mc-card-teal rounded-xl p-6 flex flex-col justify-between space-y-5">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <span class="text-xs font-bold text-white bg-mckinsey-teal px-3 py-1 rounded-md no-wrap">گام دوم</span>
+                                <span class="text-xs text-mckinsey-teal font-bold no-wrap">تحلیل و عارضه‌یابی</span>
+                            </div>
+                            <h3 class="font-extrabold text-mckinsey-navy text-base">تحلیل ناب، عارضه‌یابی و تعیین راهکارهای بهبود</h3>
+                            <ul class="catalog-list pt-1">
+                                <li>تحلیل عمیق جریان فرآیندها و شناسایی گلوگاه‌های کلیدی (<strong class="text-mckinsey-teal">Bottlenecks</strong>) و اتلاف‌ها.</li>
+                                <li>جانمایی دقیق فعالیت‌های فاقد ارزش افزوده و موداها (<strong class="text-mckinsey-teal">Muda & No Value</strong>).</li>
+                                <li>طراحی و تدوین راهکارهای اصلاحی و پیشنهادات بهبود چابک متناسب با ساختار عملیاتی کسرا.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-teal-50/70 p-4 rounded-xl border border-teal-200 text-xs sm:text-sm">
+                            <span class="font-extrabold text-teal-950 block mb-1">خروجی ملموس گام ۲:</span>
+                            <span class="text-teal-900 font-medium">گزارش تخصصی تحلیل ناب جریان فرآیندها و راهکارهای اصلاحی.</span>
+                        </div>
+                    </div>
+
+                    <div class="mc-card mc-card-blue rounded-xl p-6 flex flex-col justify-between space-y-5">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <span class="text-xs font-bold text-white bg-blue-600 px-3 py-1 rounded-md no-wrap">گام سوم</span>
+                                <span class="text-xs text-blue-700 font-bold no-wrap">معماری مطلوب و صرفه‌جویی</span>
+                            </div>
+                            <h3 class="font-extrabold text-mckinsey-navy text-base">طراحی فرآیندهای مطلوب و سنجش ارزش افزوده</h3>
+                            <ul class="catalog-list pt-1">
+                                <li>طراحی و ترسیم دیاگرام‌های فرآیندی وضع مطلوب (<strong class="text-blue-700">To-Be</strong>) پس از حذف اتلاف‌ها.</li>
+                                <li>محاسبه و مستندسازی میزان کاهش زمان عملیات، معطلی و بهینه‌سازی منابع سازمانی.</li>
+                                <li>ارائه پکیج نهایی گزارش‌های معماری ناب فرآیندها.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200 text-xs sm:text-sm">
+                            <span class="font-extrabold text-blue-950 block mb-1">خروجی ملموس گام ۳:</span>
+                            <span class="text-blue-900 font-medium">نقشه فرآیندهای مطلوب (To-Be) و گزارش تحلیلی بهره‌وری.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 03: PREREQUISITES & SCOPE -->
+            <section id="sec-risk" class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xs font-bold text-mckinsey-teal bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded">03</span>
+                        <h2 class="text-base sm:text-lg font-bold text-mckinsey-navy no-wrap">پیش‌فرض‌ها، الزامات همکاری و شفاف‌سازی قلمرو پروژه</h2>
+                    </div>
+                    <span class="text-xs text-slate-500 hidden sm:inline-block no-wrap">همکاری متقابل برای حصول بهترین نتیجه</span>
+                </div>
+
+                <div class="bg-teal-50/80 border border-teal-300 rounded-xl p-5 flex flex-col md:flex-row items-start justify-between gap-4 shadow-sm">
+                    <div class="flex items-start gap-3.5">
+                        <div class="w-9 h-9 rounded-lg bg-mckinsey-teal text-white font-bold flex items-center justify-center shrink-0 mt-0.5 text-base">✦</div>
+                        <div class="space-y-1.5">
+                            <h4 class="font-extrabold text-mckinsey-navy text-sm sm:text-base">پیش‌فرض‌ها و الزامات همکاری (Assumptions & Prerequisites):</h4>
+                            <p class="text-xs sm:text-sm text-slate-800 leading-relaxed text-justify font-medium">
+                                <strong>تعهد همکاری کارفرما در خصوص دسترسی به اطلاعات:</strong> تامین به‌موقع اطلاعات، رویه‌های جاری، دستورالعمل‌ها و امکان برگزاری جلسات مصاحبه و خبرگی با خبرگان کلیدی فرآیندها در شرکت مهندسی کسرا (اصفهان)، بر عهده تیم داخلی کارفرما بوده و مشاور مسئولیت کشف، مدل‌سازی، عارضه‌یابی و معماری ناب فرآیندها را بر عهده خواهد داشت.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-3 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="font-extrabold text-sm text-mckinsey-navy">۱. رویکرد مینیمال و چابک به جای مستندات کاغذی پیچیده</span>
+                            <span class="text-xs bg-teal-50 text-teal-800 border border-teal-200 px-2.5 py-0.5 rounded-md font-bold no-wrap">مزیت کلیدی</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            پروژه بر اساس مدل‌های ساده، روان و کاربردی (بر اساس نمونه خروجی توافق‌شده) پیش می‌رود تا از بوروکراسی مطالعاتی سنگین جلوگیری شده و سرعت و کیفیت تحلیل به حداکثر برسد.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-3 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="font-extrabold text-sm text-mckinsey-navy">۲. مرزبندی قلمرو نرم‌افزاری و پیاده‌سازی سیستم</span>
+                            <span class="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-0.5 rounded-md font-bold no-wrap">خارج از قلمرو</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            خدمات این پروپوزال شامل «معماری، مدل‌سازی، عارضه‌یابی و طراحی راهکارهای بهبود فرآیندها» است. پیاده‌سازی راهکارهای اصلاحی اعم از بهبودهای سیستمی، کدنویسی یا توسعه نرم‌افزارهای اتوماسیون فراتر از مستندات تحلیل فرآیند، خارج از قلمرو (Out of Scope) این قرارداد می‌باشد.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 04: INVESTMENT CALCULATOR & FIXED BASE PAYMENT CARDS -->
+            <section id="sec-investment" class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xs font-bold text-mckinsey-teal bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded">04</span>
+                        <h2 class="text-base sm:text-lg font-bold text-mckinsey-navy no-wrap">ماشین‌حساب تعاملی برآورد کلان پروژه و شرایط پرداخت</h2>
+                    </div>
+                    <span class="text-xs font-bold text-slate-500 hidden sm:inline-block no-wrap">
+                        مبنای محاسبه: ۲۴ میلیون تومان / فرآیند
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    
+                    <div class="lg:col-span-6 mc-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between space-y-6">
+                        <div class="space-y-4">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="bg-mckinsey-navy text-white text-xs font-bold px-3 py-1 rounded-md">تعرفه پایه و استاندارد قرارداد</span>
+                                <span class="text-xs text-slate-500 font-bold">اعتبار تا ۱۴۰۵/۰۸/۱۵</span>
+                            </div>
+
+                            <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-slate-600 font-bold">نرخ مصوب هر فرآیند در قلمرو:</span>
+                                    <div class="text-left flex items-center gap-2">
+                                        <span class="text-sm font-extrabold text-mckinsey-navy">۲۴,۰۰۰,۰۰۰ تومان</span>
+                                        <button type="button" onclick="openPriceModal()" class="bg-mckinsey-teal/10 hover:bg-mckinsey-teal hover:text-white text-mckinsey-teal text-[11px] font-bold px-2 py-0.5 rounded transition border border-mckinsey-teal/30 cursor-pointer no-print">📊 آنالیز فازها</button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-200">
+                                    <span class="text-xs text-slate-600 font-bold">فرضیه قلمرو مرجع (۲۰ فرآیند):</span>
+                                    <span class="text-base font-black text-mckinsey-teal">۴۸۰,۰۰۰,۰۰۰ تومان (زمان: ۳ ماه)</span>
+                                </div>
+                                <!-- اضافه شدن تبصره کلیدی درخواست شده -->
+                                <div class="pt-2 border-t border-slate-200 text-[13px] text-slate-600 leading-relaxed font-medium">
+                                    📌 <strong class="text-mckinsey-navy">تبصره شرایط مالی:</strong> مبتنی بر قلمرو اعلامی پروژه از سوی کارفرما، شرایط پرداخت متغیر بوده و توافق خواهد شد.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4 PAYMENT CARDS WITH FIXED BASE AMOUNTS (480M BASIS) -->
+                        <div class="space-y-2.5">
+                            <span class="text-xs font-bold text-slate-500 block">شرایط پرداخت مرحله‌ای پیشنهادی (بر اساس درصدهای مصوب مبنای ۴۸۰ میلیون):</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-300 flex flex-col justify-between shadow-sm">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] font-bold text-slate-700">پیش‌پرداخت</span>
+                                        <span class="text-xs font-black text-mckinsey-navy">۳۰٪</span>
+                                    </div>
+                                    <div class="my-2 pt-2 border-t border-slate-200">
+                                        <span class="font-extrabold text-xs text-slate-900 block">۱۴۴,۰۰۰,۰۰۰ تومان</span>
+                                        <span class="text-[10px] text-slate-500 block mt-0.5">ابتدای قرارداد</span>
+                                    </div>
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-300 flex flex-col justify-between shadow-sm">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] font-bold text-slate-700">گزارش منابع انسانی</span>
+                                        <span class="text-xs font-black text-mckinsey-navy">۲۵٪</span>
+                                    </div>
+                                    <div class="my-2 pt-2 border-t border-slate-200">
+                                        <span class="font-extrabold text-xs text-slate-900 block">۱۲۰,۰۰۰,۰۰۰ تومان</span>
+                                        <span class="text-[10px] text-slate-500 block mt-0.5">تحویل گزارش HR</span>
+                                    </div>
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-300 flex flex-col justify-between shadow-sm">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] font-bold text-slate-700">گزارش اداری-مالی</span>
+                                        <span class="text-xs font-black text-mckinsey-navy">۲۵٪</span>
+                                    </div>
+                                    <div class="my-2 pt-2 border-t border-slate-200">
+                                        <span class="font-extrabold text-xs text-slate-900 block">۱۲۰,۰۰۰,۰۰۰ تومان</span>
+                                        <span class="text-[10px] text-slate-500 block mt-0.5">تحویل گزارش مالی</span>
+                                    </div>
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-300 flex flex-col justify-between shadow-sm">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] font-bold text-slate-700">گزارش پشتیبانی</span>
+                                        <span class="text-xs font-black text-mckinsey-navy">۲۰٪</span>
+                                    </div>
+                                    <div class="my-2 pt-2 border-t border-slate-200">
+                                        <span class="font-extrabold text-xs text-slate-900 block">۹۶,۰۰۰,۰۰۰ تومان</span>
+                                        <span class="text-[10px] text-slate-500 block mt-0.5">تحویل گزارش پشتیبانی</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-6 bg-mckinsey-navy text-white rounded-2xl p-6 sm:p-7 flex flex-col justify-between space-y-5 shadow-md">
+                        <div class="space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="bg-teal-500/20 text-teal-300 border border-teal-400/30 text-xs font-bold px-3 py-1 rounded-md">
+                                    ماشین‌حساب تعاملی برآورد کلان پروژه
+                                </span>
+                                <span id="processCountVal" class="text-xs font-extrabold text-white bg-teal-500 px-2.5 py-1 rounded">۲۰ فرآیند</span>
+                            </div>
+                            <h3 class="text-base font-extrabold text-white">تعداد فرآیندهای مورد نظر را تنظیم کنید تا مبلغ کل و زمان‌بندی محاسبه گردد</h3>
+                        </div>
+
+                        <div class="space-y-3 bg-[#0A2540] border border-teal-500/30 rounded-xl p-4">
+                            <label class="text-xs text-slate-300 block">انتخاب تعداد فرآیندهای قلمرو (از ۵ تا ۵۰ فرآیند):</label>
+                            <input type="range" id="processCountRange" min="5" max="50" step="1" value="20" oninput="recalcCalculator()" class="w-full accent-teal-400" />
+                            <div class="flex justify-between text-[11px] text-slate-400">
+                                <span>۵ فرآیند</span>
+                                <span>۲۰ فرآیند (مرجع: ۴۸۰ م)</span>
+                                <span>۵۰ فرآیند</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                            <div class="bg-white/10 p-3.5 rounded-xl border border-white/15 text-center">
+                                <span class="text-[11px] text-slate-300 block">تعداد فرآیندها:</span>
+                                <span id="calc-count-summary" class="text-base font-black text-teal-300 block mt-1">۲۰ فرآیند</span>
+                            </div>
+                            <div class="bg-white/10 p-3.5 rounded-xl border border-white/15 text-center">
+                                <span class="text-[11px] text-slate-300 block">زمان‌بندی اجرایی:</span>
+                                <span id="durationVal" class="text-base font-black text-white block mt-1">۳ ماه</span>
+                            </div>
+                            <div class="bg-white/10 p-3.5 rounded-xl border border-white/15 text-center">
+                                <span class="text-[11px] text-slate-300 block">مبلغ کل قرارداد:</span>
+                                <span class="mt-1 block"><strong id="totalCostVal" class="text-base font-black text-teal-400">۴۸۰,۰۰۰,۰۰۰</strong> <span class="text-[10px]">تومان</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- SECTION 05: CONSULTANT BIO -->
+            <section id="sec-authority" class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xs font-bold text-mckinsey-teal bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded">05</span>
+                        <h2 class="text-base sm:text-lg font-bold text-mckinsey-navy no-wrap">درباره مشاور و شایستگی‌های محوری</h2>
+                    </div>
+                    <span class="text-xs text-slate-500 hidden sm:inline-block no-wrap">تلفیق معماری تحول چابک و سیستم‌سازی عملیاتی</span>
+                </div>
+
+                <div class="mc-card rounded-2xl p-6 sm:p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                        
+                        <div class="lg:col-span-4 bg-slate-50 rounded-xl p-6 border border-slate-200 text-center space-y-4">
+                            <div>
+                                <h3 class="font-extrabold text-mckinsey-navy text-lg">مهندس شهاب خانعلی‌زاده</h3>
+                                <p class="text-xs text-mckinsey-teal font-bold mt-1">مربی، مشاور و مجری مدیریت بلوغ فرآیندها | طراح معماری چابک VALOR</p>
+                                <p class="text-xs text-slate-500 mt-1">کارشناسی مهندسی صنایع • کارشناسی ارشد مدیریت دولتی</p>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-200 text-center">
+                                <div><span class="font-extrabold text-base text-mckinsey-navy block">+۱۷ سال</span><span class="text-[11px] text-slate-500">تجربه</span></div>
+                                <div><span class="font-extrabold text-base text-mckinsey-navy block">۳۹</span><span class="text-[11px] text-slate-500">کارفرما</span></div>
+                                <div><span class="font-extrabold text-base text-mckinsey-navy block">۵۳</span><span class="text-[11px] text-slate-500">قرارداد همکاری</span></div>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-8 space-y-5">
+                            <div class="space-y-2">
+                                <span class="text-xs font-bold text-slate-500 block">شایستگی‌های محوری:</span>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="bg-teal-50 text-teal-950 border border-teal-200 text-xs font-bold px-3.5 py-1.5 rounded-lg no-wrap">▪ قابلیت‌محوری ارزش‌گرا</span>
+                                    <span class="bg-teal-50 text-teal-950 border border-teal-200 text-xs font-bold px-3.5 py-1.5 rounded-lg no-wrap">▪ سادگی طراحی و استقرار</span>
+                                    <span class="bg-teal-50 text-teal-950 border border-teal-200 text-xs font-bold px-3.5 py-1.5 rounded-lg no-wrap">▪ مقیاس‌پذیری سریع</span>
+                                    <span class="bg-teal-50 text-teal-950 border border-teal-200 text-xs font-bold px-3.5 py-1.5 rounded-lg no-wrap">▪ نتیجه‌محوری و پایداری بلوغ</span>
+                                    <span class="bg-teal-50 text-teal-950 border border-teal-200 text-xs font-bold px-3.5 py-1.5 rounded-lg no-wrap">▪ چابک و هوشمندمحور</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 pt-2 border-t border-slate-100">
+                                <span class="text-xs font-bold text-slate-500 block">مهارت‌های کلیدی و تخصصی:</span>
+                                <ul class="skill-list">
+                                    <li>طراح متدولوژی چابک و انحصاری VALOR (شتابدهی تحول اهرم‌محور با خلق قابلیت‌های پویا)</li>
+                                    <li>معماری تحول و بلوغ فرآیندی چابک و ناب</li>
+                                    <li>ارائه‌دهنده سیستم‌عامل قابلیت‌های کسب‌وکار به روش Operational Manual در قالب System as Product</li>
+                                    <li>طراح سیستم‌های ناب و چابک OKR مبتنی بر ارزش</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- BOTTOM LAUNCHPAD FOR SEPARATE SIMULATOR PAGE -->
+            <section class="bg-gradient-to-l from-mckinsey-navy via-mckinsey-deep to-teal-900 text-white rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm no-print">
+                <div class="space-y-1">
+                    <h3 class="font-bold text-base text-white">شبیه‌ساز محصول تحویلی پروژه</h3>
+                    <p class="text-xs text-slate-300">جهت بررسی نمونه خروجی فرآیندها در حوزه‌های منابع انسانی، مالی و پشتیبانی، وارد صفحه شبیه‌ساز شوید.</p>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <button type="button" onclick="openSimulatorPage()" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs sm:text-sm px-5 py-3 rounded-xl transition shadow-md no-wrap cursor-pointer">
+                        ورود به شبیه‌ساز نمونه تحویلی پروژه ←
+                    </button>
+                    <a href="tel:09127489153" class="bg-white/10 hover:bg-white/20 text-white font-medium text-xs sm:text-sm px-4 py-3 rounded-xl border border-white/15 transition no-wrap">
+                        تماس مستقیم: ۰۹۱۲۷۴۸۹۱۵۳
+                    </a>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="border-t border-slate-200 bg-white py-3.5 px-6 lg:px-12 text-xs text-slate-500">
+            <div class="w-full max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+                <span>مهندس شهاب خانعلی‌زاده • مربی، مشاور و مجری مدیریت بلوغ فرآیندها و طراح معماری چابک VALOR</span>
+                <span dir="ltr">0912 748 9153  |  shahabkhanalizadeh@gmail.com</span>
+            </div>
+        </footer>
+    </div>
+
+
+    <!-- ===================================================================== -->
+    <!-- DYNAMIC PRICE ANALYSIS MODAL DIALOG                                   -->
+    <!-- ===================================================================== -->
+    <div id="price-analysis-modal" style="display: none;" class="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 lg:p-8 no-print">
+        <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col justify-between">
+            
+            <div class="bg-mckinsey-navy text-white p-5 lg:p-6 rounded-t-2xl flex items-center justify-between sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-6 bg-mckinsey-teal rounded-sm"></div>
+                    <div>
+                        <h3 class="font-extrabold text-base sm:text-lg">آنالیز ساختار فازهای پروژه و تعرفه ۲۴ میلیون تومانی هر فرآیند</h3>
+                        <p class="text-xs text-slate-300 mt-0.5">کارفرما: شرکت مهندسی کسرا (اصفهان) | نماینده: جناب آقای دکتر محمدزاده</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closePriceModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center transition cursor-pointer text-lg">
+                    ✕
+                </button>
+            </div>
+
+            <div class="p-6 lg:p-8 space-y-6">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-2xs sm:text-sm font-bold text-mckinsey-navy">
+                    <span>حوزه پروژه: منابع انسانی / اداری مالی / پشتیبانی</span>
+                    <span class="bg-mckinsey-teal text-white px-4 py-1 rounded-lg">قلمرو فرض مرجع (۲۰ فرآیند): ۴۸۰ میلیون تومان</span>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                    <table class="w-full text-right text-xs sm:text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-mckinsey-navy text-white font-bold">
+                                <th class="py-3.5 px-4 w-12 text-center border-b border-slate-700">ردیف</th>
+                                <th class="py-3.5 px-4 border-b border-slate-700">گام‌های اجرایی پروژه معماری فرآیندها</th>
+                                <th class="py-3.5 px-4 border-b border-slate-700">شرح دستاورد ملموس و نحوه تحویل خروجی</th>
+                                <th class="py-3.5 px-4 border-b border-slate-700 w-44 text-left">برآورد سهم (برای ۲۰ فرآیند)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 bg-white font-medium text-slate-800">
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="py-4 px-4 text-center font-bold text-mckinsey-navy">۱</td>
+                                <td class="py-4 px-4 font-extrabold text-mckinsey-navy">کشف و مدل‌سازی وضع موجود (As-Is)</td>
+                                <td class="py-4 px-4 text-slate-600 leading-relaxed">
+                                    • برگزاری جلسات خبرگی با کارشناسان و مدیران کسرا<br>
+                                    • کشف، شناخت و رسم دیاگرام BPMN 2.0 در سطح ۳ توصیفی
+                                </td>
+                                <td class="py-4 px-4 font-black text-mckinsey-navy text-left no-wrap">۱۴۴,۰۰۰,۰۰۰ تومان</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition bg-slate-50/50">
+                                <td class="py-4 px-4 text-center font-bold text-mckinsey-navy">۲</td>
+                                <td class="py-4 px-4 font-extrabold text-mckinsey-navy">تحلیل، عارضه‌یابی و راهکارهای بهبود</td>
+                                <td class="py-4 px-4 text-slate-600 leading-relaxed">
+                                    • تحلیل جریان فرآیندها و شناسایی گلوگاه‌ها (Bottlenecks)<br>
+                                    • جانمایی فعالیت‌های فاقد ارزش افزوده (No Value و Muda) و تدوین راهکارهای اصلاحی
+                                </td>
+                                <td class="py-4 px-4 font-black text-mckinsey-navy text-left no-wrap">۱۶۸,۰۰۰,۰۰۰ تومان</td>
+                            </tr>
+                            <tr class="hover:bg-teal-50/30 transition bg-teal-50/20">
+                                <td class="py-4 px-4 text-center font-bold text-mckinsey-navy">۳</td>
+                                <td class="py-4 px-4 font-extrabold text-mckinsey-navy">مدل‌سازی مطلوب (To-Be) و سنجش صرفه‌جویی</td>
+                                <td class="py-4 px-4 text-slate-700 leading-relaxed font-semibold">
+                                    • ترسیم نقشه‌های فرآیندی وضع مطلوب با رویکرد چابک و ناب<br>
+                                    • محاسبه میزان کاهش زمان عملیات و انتظار و ارائه پکیج نهایی گزارش‌های معماری ناب فرآیندها
+                                </td>
+                                <td class="py-4 px-4 font-black text-mckinsey-navy text-left no-wrap">۱۶۸,۰۰۰,۰۰۰ تومان</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-mckinsey-navy text-white font-extrabold text-sm sm:text-base">
+                                <td colspan="2" class="py-4 px-4">مبلغ کل قرارداد (با فرض ۲۰ فرآیند)</td>
+                                <td class="py-4 px-4 text-xs font-normal text-slate-300">مبنای ۲۴ میلیون تومان به ازای هر فرآیند | زمان‌بندی: ۳ ماه</td>
+                                <td class="py-4 px-4 text-left font-black text-teal-300 no-wrap">۴۸۰,۰۰۰,۰۰۰ <span class="text-xs font-normal text-slate-300">تومان</span></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-4 px-6 rounded-b-2xl border-t border-slate-200 flex items-center justify-between">
+                <span class="text-xs text-slate-500 font-medium">طراحی شده بر اساس استانداردهای بین‌المللی مشاوره مدیریت</span>
+                <button type="button" onclick="closePriceModal()" class="bg-mckinsey-navy hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition cursor-pointer">
+                    بستن پنجره
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ===================================================================== -->
+    <!-- PAGE 2: DEDICATED PROCESS OUTPUT SIMULATOR VIEW (ORTHOGONAL BPMN)     -->
+    <!-- ===================================================================== -->
+    <div id="page-simulator" style="display: none;" class="min-h-screen bg-[#0B1320] text-white flex-col justify-between">
+
+        <header class="bg-[#051C2C] border-b border-white/10 sticky top-0 z-50">
+            <div class="w-full max-w-[1600px] mx-auto px-6 lg:px-12 h-14 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></span>
+                    <div>
+                        <span class="font-bold text-sm text-white block">شبیه‌ساز نمونه خروجی تحویلی معماری فرآیندها | شرکت مهندسی کسرا</span>
+                                            </div>
+                </div>
+                <button type="button" onclick="closeSimulatorPage()" class="bg-white text-mckinsey-navy hover:bg-slate-200 font-bold text-xs px-4 py-2 rounded-lg transition flex items-center gap-2 no-wrap cursor-pointer shadow-sm">
+                    <span>→ بازگشت به متن اصلی پروپوزال</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="w-full max-w-[1600px] mx-auto px-6 lg:px-12 py-8 space-y-8 flex-1">
+
+            <!-- DOMAIN SWITCHER BAR -->
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-[#111E32] p-6 rounded-2xl border border-white/10">
+                <div class="space-y-1">
+                    <span class="text-xs font-bold text-teal-300 bg-teal-500/10 px-3 py-1 rounded">انتخاب حوزه قلمرو جهت بررسی نمونه خروجی تحویلی</span>
+                    <h2 id="domain-title" class="text-base sm:text-lg font-bold text-white">حوزه اداری مالی: فرآیند پرداخت مزایا، تنخواه‌گردان و صورتحساب‌ها</h2>
+                    <p id="domain-desc" class="text-xs text-slate-300 pt-1">
+                        بهینه‌سازی جریان پرداخت‌های رفاهی و مالی، خودکارسازی کنترل‌های نرم‌افزاری و رفع گلوگاه‌های امضا و تسویه حساب.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 bg-[#051C2C] p-1.5 rounded-xl border border-white/15 shrink-0">
+                    <button type="button" id="btn-domain-hr" onclick="switchDomain('hr')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-white transition cursor-pointer">منابع انسانی</button>
+                    <button type="button" id="btn-domain-fin" onclick="switchDomain('finance')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-teal-500 text-slate-950 transition cursor-pointer">اداری مالی</button>
+                    <button type="button" id="btn-domain-sup" onclick="switchDomain('support')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-white transition cursor-pointer">پشتیبانی</button>
+                </div>
+            </div>
+
+            <!-- ENHANCED LEAN SAVINGS DASHBOARD -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-[#111E32] rounded-xl p-5 space-y-2 border-t-3 border-rose-500 border border-white/10">
+                    <span class="text-xs font-bold text-rose-400 block">زمان کل وضع موجود (As-Is)</span>
+                    <div id="sim-asis-total" class="text-2xl font-black text-white">۵۰ ساعت</div>
+                    <p id="sim-asis-muda" class="text-xs text-rose-300 pt-1">۲۸ ساعت اتلاف انتظار (Muda)</p>
+                </div>
+
+                <div class="bg-[#111E32] rounded-xl p-5 space-y-2 border-t-3 border-teal-400 border border-white/10">
+                    <span class="text-xs font-bold text-teal-300 block">زمان کل وضع مطلوب (To-Be)</span>
+                    <div id="sim-tobe-total" class="text-2xl font-black text-teal-400">۲۵ ساعت</div>
+                    <p class="text-xs text-slate-300 pt-1">خالص زمان ارزش‌آفرین سیستم</p>
+                </div>
+
+                <div class="bg-[#111E32] rounded-xl p-5 space-y-2 border-t-3 border-amber-400 border border-white/10">
+                    <span class="text-xs font-bold text-amber-300 block">خالص زمان ذخیره‌شده (Time Saved)</span>
+                    <div id="sim-saved-time" class="text-2xl font-black text-amber-300">۲۵ ساعت (۵۰٪ کاهش)</div>
+                    <p class="text-xs text-slate-300 pt-1">برداشت کامل بوروکراسی و معطلی‌ها</p>
+                </div>
+
+                <div class="bg-[#111E32] rounded-xl p-5 space-y-2 border-t-3 border-blue-400 border border-white/10">
+                    <span class="text-xs font-bold text-blue-300 block">شاخص کل بهره‌وری ناب</span>
+                    <div id="sim-efficiency-gain" class="text-2xl font-black text-blue-300">بهبود ۵۰ درصدی بهره‌وری</div>
+                    <p id="sim-lean-summary" class="text-xs text-slate-300 pt-1">با حذف ساخت فایل‌های اکسل کنترلی موازی و بازبینی‌های مکرر دستی، چرخه مالی تسریع شد.</p>
+                </div>
+            </div>
+
+            <!-- AS-IS vs TO-BE TEXT BREAKDOWN -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-6 bg-[#111E32] rounded-xl p-6 space-y-5 border border-white/10">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 class="font-bold text-white text-sm">تحلیل عارضه‌های وضع موجود (As-Is)</h3>
+                        <span class="text-xs bg-rose-500/20 text-rose-300 font-bold px-2.5 py-1 rounded">شناسایی Muda & Bottleneck</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="step-box">۱. آغاز فرآیند و ثبت درخواست اولیه توسط واحد متقاضی <span class="text-xs text-slate-500 block font-normal">(زمان انتظار اولیه)</span></div>
+                        <div class="step-box novalue"><span id="asis-box-1-title">۲. بازبینی دستی اسناد و مغایرت‌گیری هزینه‌ها</span> <span id="asis-box-1-desc" class="text-xs text-amber-700 block font-normal">⚠ فعالیت فاقد ارزش افزوده (No Value)</span></div>
+                        <div class="step-box bottleneck"><span id="asis-box-2-title">۳. اخذ امضای فیزیکی اسناد مالی از مدیران</span> <span id="asis-box-2-desc" class="text-xs text-rose-700 block font-normal">🔴 گلوگاه اصلی (Bottleneck) و تلفات (Muda)</span></div>
+                        <div class="step-box bottleneck"><span id="asis-box-3-title">۴. معطلی در صف تاییدیه و بایگانی سنتی</span> <span id="asis-box-3-desc" class="text-xs text-rose-700 block font-normal">🔴 معطلی در صف انتظار مدیران</span></div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-6 bg-[#111E32] rounded-xl p-6 space-y-5 border border-teal-500/30">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 class="font-bold text-white text-sm">طراحی نظام مطلوب و چابک (To-Be)</h3>
+                        <span class="text-xs bg-teal-500/20 text-teal-300 font-bold px-2.5 py-1 rounded">بهینه‌سازی و خلق ارزش</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="step-box optimized"><span id="tobe-box-1-title">۱. استخراج سیستمی داده‌های مالی و هزینه‌ای</span> <span id="tobe-box-1-desc" class="text-xs text-teal-800 block font-normal">(یکپارچه‌سازی کامل داده‌ها)</span></div>
+                        <div class="step-box optimized"><span id="tobe-box-2-title">۲. انطباق‌سنجی خودکار سقف بودجه و اسناد</span> <span id="tobe-box-2-desc" class="text-xs text-teal-800 block font-normal">✓ کنترل سیستمی لحظه‌ای بدون معطلی</span></div>
+                        <div class="step-box optimized"><span id="tobe-box-3-title">۳. تایید و پرداخت متمرکز آنی تنخواه</span> <span id="tobe-box-3-desc" class="text-xs text-teal-800 block font-normal">✓ کاهش شدید زمان انتظار تسویه حساب</span></div>
+                        <div class="step-box optimized">۴. تحویل خروجی نهایی ساختاریافته در بستر چابک <span class="text-xs text-teal-800 block font-normal">✓ کاهش چشمگیر زمان کل چرخه</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG BPMN DIAGRAMS VIEWS (WITH STRICT ORTHOGONAL 90-DEGREE LINES) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
+                
+                <!-- AS-IS GRAPHICAL BPMN DIAGRAM -->
+                <div class="lg:col-span-6 bg-[#111E32] rounded-xl p-6 space-y-4 border border-rose-500/30">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 class="font-bold text-white text-sm">دیاگرام جریان فرآیند موجود و جانمایی اتلاف‌ها (As-Is)</h3>
+                        
+                    </div>
+
+                    <div class="bg-[#08101D] p-5 rounded-xl border border-rose-500/20 flex flex-col items-center justify-center overflow-x-auto">
+                        <svg viewBox="0 0 600 200" class="w-full h-auto min-w-[540px]" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <marker id="arrow-rose" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#FB7185"/>
+                                </marker>
+                            </defs>
+                            
+                            <!-- Start Circle -->
+                            <circle cx="35" cy="100" r="16" fill="#1E293B" stroke="#FB7185" stroke-width="2.5"/>
+                            <text x="35" y="135" fill="#94A3B8" font-size="11" text-anchor="middle" font-family="IRANSans, sans-serif">شروع</text>
+
+                            <!-- Line to Activity 1 -->
+                            <line x1="51" y1="100" x2="95" y2="100" stroke="#FB7185" stroke-width="2" marker-end="url(#arrow-rose)"/>
+
+                            <!-- Activity 1 -->
+                            <rect x="95" y="72" rx="6" ry="6" width="95" height="56" fill="#1E293B" stroke="#475569" stroke-width="1.5"/>
+                            <text id="asis-node-1-text" x="142" y="106" fill="#F8FAFC" font-size="10" text-anchor="middle" font-family="IRANSans, sans-serif" font-weight="bold">بازبینی اسناد مالی</text>
+
+                            <!-- Line to Gateway -->
+                            <line x1="190" y1="100" x2="235" y2="100" stroke="#FB7185" stroke-width="2" marker-end="url(#arrow-rose)"/>
+                            <!-- Warning Triangle (Muda) -->
+                            <polygon points="212,78 222,96 202,96" fill="#F59E0B"/>
+                            <text x="212" y="92" fill="#0F172A" font-size="9" text-anchor="middle" font-weight="bold">!</text>
+
+                            <!-- Gateway Diamond (Decision Split) -->
+                            <polygon points="275,70 315,100 275,130 235,100" fill="#1E293B" stroke="#F59E0B" stroke-width="2"/>
+                            <text x="275" y="104" fill="#FCD34D" font-size="13" text-anchor="middle" font-weight="bold">X</text>
+                            <text x="275" y="152" fill="#FCD34D" font-size="9.5" text-anchor="middle" font-family="IRANSans, sans-serif">شرط تایید؟</text>
+
+                            <!-- Path 1 (Top Branch: Orthogonal Straight Lines) -->
+                            <path d="M 315 100 H 360 V 58 H 405" fill="none" stroke="#FB7185" stroke-width="2" marker-end="url(#arrow-rose)"/>
+                            <text x="365" y="75" fill="#94A3B8" font-size="9" font-family="IRANSans, sans-serif">تایید</text>
+
+                            <rect x="405" y="32" rx="6" ry="6" width="95" height="52" fill="#1E293B" stroke="#EF4444" stroke-width="2"/>
+                            <text id="asis-node-2a-text" x="452" y="63" fill="#FCA5A5" font-size="9.5" text-anchor="middle" font-family="IRANSans, sans-serif" font-weight="bold">تایید اعتبار مالی</text>
+
+                            <!-- Path 2 (Bottom Branch: Orthogonal Straight Lines) -->
+                            <path d="M 315 100 H 360 V 140 H 405" fill="none" stroke="#FB7185" stroke-width="2" marker-end="url(#arrow-rose)"/>
+                            <text x="365" y="132" fill="#94A3B8" font-size="9" font-family="IRANSans, sans-serif">عدم تایید</text>
+                            <!-- Warning Triangle (Bottleneck) -->
+                            <polygon points="355,124 365,140 345,140" fill="#EF4444"/>
+                            <text x="355" y="136" fill="#FFFFFF" font-size="9" text-anchor="middle" font-weight="bold">!</text>
+
+                            <rect x="405" y="114" rx="6" ry="6" width="95" height="52" fill="#1E293B" stroke="#EF4444" stroke-width="2"/>
+                            <text id="asis-node-2b-text" x="452" y="145" fill="#FCA5A5" font-size="9.5" text-anchor="middle" font-family="IRANSans, sans-serif" font-weight="bold">مغایرت و عودت سند</text>
+
+                            <!-- Converging straight paths to End Circle -->
+                            <path d="M 500 58 H 520 V 100 H 545" fill="none" stroke="#FB7185" stroke-width="2" marker-end="url(#arrow-rose)"/>
+                            <path d="M 500 140 H 520 V 100" fill="none" stroke="#FB7185" stroke-width="2"/>
+
+                            <!-- End Circle -->
+                            <circle cx="560" cy="100" r="15" fill="#1E293B" stroke="#EF4444" stroke-width="3"/>
+                            <text x="560" y="135" fill="#94A3B8" font-size="11" text-anchor="middle" font-family="IRANSans, sans-serif">پایان</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- TO-BE GRAPHICAL BPMN DIAGRAM -->
+                <div class="lg:col-span-6 bg-[#111E32] rounded-xl p-6 space-y-4 border border-teal-500/30">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 class="font-bold text-white text-sm">دیاگرام جریان فرآیند مطلوب (To-Be)</h3>
+                       
+                    </div>
+
+                    <div class="bg-[#08101D] p-5 rounded-xl border border-teal-500/20 flex flex-col items-center justify-center overflow-x-auto">
+                        <svg viewBox="0 0 600 200" class="w-full h-auto min-w-[540px]" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <marker id="arrow-teal" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#2DD4BF"/>
+                                </marker>
+                            </defs>
+                            
+                            <!-- Start Circle -->
+                            <circle cx="35" cy="100" r="16" fill="#1E293B" stroke="#2DD4BF" stroke-width="2.5"/>
+                            <text x="35" y="135" fill="#94A3B8" font-size="11" text-anchor="middle" font-family="IRANSans, sans-serif">شروع</text>
+
+                            <!-- Line to Activity 1 -->
+                            <line x1="51" y1="100" x2="95" y2="100" stroke="#2DD4BF" stroke-width="2" marker-end="url(#arrow-teal)"/>
+
+                            <!-- Activity 1 -->
+                            <rect x="95" y="72" rx="6" ry="6" width="95" height="56" fill="#1E293B" stroke="#0D9488" stroke-width="1.5"/>
+                            <text id="tobe-node-1-text" x="142" y="106" fill="#F8FAFC" font-size="10" text-anchor="middle" font-family="IRANSans, sans-serif" font-weight="bold">انطباق‌سنجی خودکار</text>
+
+                            <!-- Line to Gateway -->
+                            <line x1="190" y1="100" x2="235" y2="100" stroke="#2DD4BF" stroke-width="2" marker-end="url(#arrow-teal)"/>
+
+                            <!-- Gateway Diamond (Parallel/Inclusive Split) -->
+                            <polygon points="275,70 315,100 275,130 235,100" fill="#1E293B" stroke="#2DD4BF" stroke-width="2"/>
+                            <text x="275" y="104" fill="#2DD4BF" font-size="13" text-anchor="middle" font-weight="bold">O</text>
+                            <text x="275" y="152" fill="#2DD4BF" font-size="9.5" text-anchor="middle" font-family="IRANSans, sans-serif">مسیردهی موازی</text>
+
+                            <!-- Path 1 (Top Branch: Orthogonal Straight Lines) -->
+                            <path d="M 315 100 H 360 V 58 H 405" fill="none" stroke="#2DD4BF" stroke-width="2" marker-end="url(#arrow-teal)"/>
+                            <text x="365" y="75" fill="#94A3B8" font-size="9" font-family="IRANSans, sans-serif">مسیر الف</text>
+
+                            <rect x="405" y="32" rx="6" ry="6" width="95" height="52" fill="#1E293B" stroke="#2DD4BF" stroke-width="2"/>
+                            <text id="tobe-node-2a-text" x="452" y="63" fill="#CCFBF1" font-size="9.5" text-anchor="middle" font-family="IRANSans, sans-serif" font-weight="bold">پرداخت متمرکز آنی</text>
+
+                            <!-- Path 2 (Bottom Branch: Orthogonal Straight Lines) -->
+                            <path d="M 315 100 H 360 V 140 H 405" fill="none" stroke="#2DD4BF" stroke-width="2" marker-end="url(#arrow-teal)"/>
+                            <text x="365" y="132" fill="#94A3B8" font-size="9" font-family="IRANSans, sans-serif">مسیر ب</text>
+
+                            <rect x="405" y="114" rx="6" ry="6" width="95" height="52" fill="#1E293B" stroke="#2DD4BF" stroke-width="2"/>
+                            <text id="tobe-node-2b-text" x="452" y="145" fill="#CCFBF1" font-size="9.5" text-anchor="middle" font-family="IRANSans, sans-serif" font-weight="bold">ثبت سند اتوماتیک</text>
+
+                            <!-- Converging straight paths to End Circle -->
+                            <path d="M 500 58 H 520 V 100 H 545" fill="none" stroke="#2DD4BF" stroke-width="2" marker-end="url(#arrow-teal)"/>
+                            <path d="M 500 140 H 520 V 100" fill="none" stroke="#2DD4BF" stroke-width="2"/>
+
+                            <!-- End Circle -->
+                            <circle cx="560" cy="100" r="15" fill="#1E293B" stroke="#2DD4BF" stroke-width="3"/>
+                            <text x="560" y="135" fill="#94A3B8" font-size="11" text-anchor="middle" font-family="IRANSans, sans-serif">پایان</text>
+                        </svg>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <footer class="border-t border-white/10 py-4 px-6 lg:px-12 text-xs text-slate-400 flex items-center justify-between">
+            <span>طراحی و معماری سیستم: مهندس شهاب خانعلی‌زاده | مدل System as Product</span>
+            <button type="button" onclick="closeSimulatorPage()" class="text-teal-300 hover:text-white font-bold cursor-pointer">
+                → بازگشت به صفحه اصلی پروپوزال
+            </button>
+        </footer>
+    </div>
+
+</body>
+</html>
